@@ -105,16 +105,24 @@
     .yes-row {
       display: flex;
       justify-content: center;
-      margin-bottom: clamp(16px, 4vw, 24px);
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
     }
 
     #no {
-      background: #e8ecf8;
-      color: #5a6899;
-      position: absolute;
+      background: #3d5bd9;
+      color: #ffffff;
+      border: none;
+      position: static;
       transition: left 0.22s cubic-bezier(0.34,1.56,0.64,1), top 0.22s cubic-bezier(0.34,1.56,0.64,1);
       white-space: nowrap;
       z-index: 10;
+      opacity: 0.85;
+    }
+
+    #no.fleeing {
+      position: absolute;
     }
 
     button {
@@ -140,13 +148,6 @@
     }
     #yes:active { transform: scale(0.97); }
 
-    #no {
-      background: #f0e6e9;
-      color: #b56e80;
-      position: absolute;
-      transition: left 0.18s cubic-bezier(0.34,1.56,0.64,1), top 0.18s cubic-bezier(0.34,1.56,0.64,1);
-      white-space: nowrap;
-    }
 
     #message {
       margin-top: clamp(16px, 4vw, 24px);
@@ -224,6 +225,9 @@
   <p class="subtitle">the roads feel empty without my moon 🚗✨</p>
 
   <div class="yes-row">
+    <button id="no">Not really 🙈</button>
+  </div>
+  <div class="yes-row">
     <button id="yes">I miss you too 😬</button>
   </div>
 
@@ -239,8 +243,6 @@
     <div class="road-line"></div>
   </div>
 
-  <!-- No floats freely over the whole card -->
-  <button id="no">Not really 🙈</button>
 </div>
 
 <script>
@@ -262,31 +264,15 @@
   const msg    = document.getElementById('message');
   const card   = document.querySelector('.card');
 
-  // Place No button next to Yes on load
-  function placeInitial() {
-    const cardR = card.getBoundingClientRect();
-    const yesR  = yesBtn.getBoundingClientRect();
-    const nw    = noBtn.offsetWidth;
-    const nh    = noBtn.offsetHeight;
-    // Position relative to card
-    const left = yesR.right - cardR.left + 12;
-    const top  = yesR.top  - cardR.top + (yesR.height - nh) / 2;
-    noBtn.style.left = left + 'px';
-    noBtn.style.top  = top  + 'px';
-  }
-
-  // Wait for fonts/layout to settle
-  requestAnimationFrame(() => requestAnimationFrame(placeInitial));
-  window.addEventListener('resize', placeInitial);
-
   noBtn.addEventListener('mouseover', flee);
   noBtn.addEventListener('click',     flee);
   noBtn.addEventListener('touchstart', flee, { passive: true });
 
+  let hasFled = false;
+
   function overlaps(x, y, nw, nh) {
     const cardR = card.getBoundingClientRect();
     const yesR  = yesBtn.getBoundingClientRect();
-    // Convert yes rect to card-relative coords
     const yl = yesR.left - cardR.left;
     const yt = yesR.top  - cardR.top;
     const pad = 10;
@@ -295,6 +281,15 @@
   }
 
   function flee() {
+    if (!hasFled) {
+      // Snapshot position before switching to absolute
+      const cardR = card.getBoundingClientRect();
+      const noR   = noBtn.getBoundingClientRect();
+      noBtn.style.left = (noR.left - cardR.left) + 'px';
+      noBtn.style.top  = (noR.top  - cardR.top)  + 'px';
+      noBtn.classList.add('fleeing');
+      hasFled = true;
+    }
     const cw  = card.offsetWidth;
     const ch  = card.offsetHeight;
     const nw  = noBtn.offsetWidth  || 80;
@@ -314,7 +309,7 @@
   yesBtn.addEventListener('click', () => {
     noBtn.style.display = 'none';
     msg.style.display = 'block';
-    msg.textContent = "i'm sorry for annoying you a bit too much. the moon looks better with you in the passenger seat, meet me soooon plisssss 🌙💨";
+    msg.innerHTML = "i'm sorry for annoying you a bit too much 😬<br>the moon looks better with you in the passenger seat, meet me soooon plisssss 🌙💨";
     burst();
   });
 
