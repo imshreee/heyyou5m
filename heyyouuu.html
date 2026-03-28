@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For You ❤️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #7b9cff;
+      --accent-light: #c4d4ff;
+      --accent-pale: #eef2ff;
+      --accent-deep: #3d5bd9;
+      --bg-start: #0d1b3e;
+      --bg-end: #1a2a5e;
+      --white: #ffffff;
+      --text: #1a2040;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(160deg, var(--bg-start) 0%, #1b2d6b 50%, #0a1628 100%);
+      font-family: 'Lato', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Floating hearts background */
+    .hearts-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .heart-float {
+      position: absolute;
+      bottom: -60px;
+      font-size: clamp(14px, 3vw, 24px);
+      opacity: 0;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0) rotate(-10deg); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.3; }
+      100% { transform: translateY(-110vh) rotate(15deg); opacity: 0; }
+    }
+
+    /* Card */
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--white);
+      border-radius: 28px;
+      padding: clamp(28px, 6vw, 52px) clamp(24px, 6vw, 52px);
+      text-align: center;
+      box-shadow:
+        0 4px 6px rgba(100,130,255,0.1),
+        0 20px 60px rgba(50,80,200,0.35),
+        0 0 0 1px rgba(100,140,255,0.1);
+      width: min(88vw, 380px);
+      animation: cardIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: scale(0.8) translateY(30px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .emoji-big {
+      font-size: clamp(44px, 12vw, 72px);
+      display: block;
+      margin-bottom: 12px;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.12); }
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(18px, 5vw, 26px);
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: clamp(12px, 3vw, 14px);
+      color: #7b8cc2;
+      font-weight: 300;
+      margin-bottom: clamp(24px, 5vw, 36px);
+      letter-spacing: 0.04em;
+    }
+
+    .yes-row {
+      display: flex;
+      justify-content: center;
+      margin-bottom: clamp(16px, 4vw, 24px);
+    }
+
+    #no {
+      background: #e8ecf8;
+      color: #5a6899;
+      position: absolute;
+      transition: left 0.22s cubic-bezier(0.34,1.56,0.64,1), top 0.22s cubic-bezier(0.34,1.56,0.64,1);
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    button {
+      padding: clamp(10px, 2.5vw, 14px) clamp(22px, 5vw, 36px);
+      border: none;
+      border-radius: 50px;
+      font-family: 'Lato', sans-serif;
+      font-size: clamp(14px, 3.5vw, 16px);
+      font-weight: 400;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    #yes {
+      background: var(--accent-deep);
+      color: white;
+      box-shadow: 0 4px 20px rgba(61,91,217,0.45);
+    }
+    #yes:hover {
+      transform: scale(1.06);
+      box-shadow: 0 6px 28px rgba(61,91,217,0.6);
+    }
+    #yes:active { transform: scale(0.97); }
+
+    #no {
+      background: #f0e6e9;
+      color: #b56e80;
+      position: absolute;
+      transition: left 0.18s cubic-bezier(0.34,1.56,0.64,1), top 0.18s cubic-bezier(0.34,1.56,0.64,1);
+      white-space: nowrap;
+    }
+
+    #message {
+      margin-top: clamp(16px, 4vw, 24px);
+      color: var(--accent-deep);
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(14px, 3.5vw, 17px);
+      line-height: 1.6;
+      min-height: 26px;
+      animation: fadeMsg 0.5s ease both;
+      display: none;
+    }
+
+    @keyframes fadeMsg {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Confetti burst */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      pointer-events: none;
+      animation: confettiFall 1.4s ease-in forwards;
+      z-index: 99;
+    }
+
+    @keyframes confettiFall {
+      0%   { opacity: 1; transform: translate(0,0) rotate(0deg); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(720deg); }
+    }
+
+    /* Road strip */
+    .road {
+      margin-top: clamp(20px, 5vw, 32px);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+      opacity: 0.35;
+    }
+    .road-line {
+      height: 2px;
+      width: 28px;
+      background: var(--accent-light);
+      border-radius: 2px;
+    }
+    .road-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-light);
+    }
+
+    /* Divider */
+    .divider {
+      width: 40px;
+      height: 2px;
+      background: var(--accent-light);
+      border-radius: 2px;
+      margin: 0 auto clamp(16px, 4vw, 24px);
+    }
+  </style>
+</head>
+<body>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<div class="card">
+  <span class="emoji-big">🌙</span>
+  <h2>Hi Anjuuumaaaaaaa,<br>I miss you.</h2>
+  <div class="divider"></div>
+  <p class="subtitle">the roads feel empty without my moon 🚗✨</p>
+
+  <div class="yes-row">
+    <button id="yes">I miss you too 😬</button>
+  </div>
+
+  <div id="message"></div>
+
+  <div class="road">
+    <div class="road-line"></div>
+    <div class="road-dot"></div>
+    <div class="road-line"></div>
+    <div class="road-dot"></div>
+    <div class="road-line"></div>
+    <div class="road-dot"></div>
+    <div class="road-line"></div>
+  </div>
+
+  <!-- No floats freely over the whole card -->
+  <button id="no">Not really 🙈</button>
+</div>
+
+<script>
+  // --- Floating hearts background ---
+  const bg = document.getElementById('heartsBg');
+  const emojis = ['🌙','⭐','✨','💫','🌟','🌠','🌌','☁️'];
+  for (let i = 0; i < 18; i++) {
+    const h = document.createElement('div');
+    h.className = 'heart-float';
+    h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.animationDuration = (6 + Math.random() * 10) + 's';
+    h.style.animationDelay = (Math.random() * 10) + 's';
+    bg.appendChild(h);
+  }
+
+  const noBtn  = document.getElementById('no');
+  const yesBtn = document.getElementById('yes');
+  const msg    = document.getElementById('message');
+  const card   = document.querySelector('.card');
+
+  // Place No button next to Yes on load
+  function placeInitial() {
+    const cardR = card.getBoundingClientRect();
+    const yesR  = yesBtn.getBoundingClientRect();
+    const nw    = noBtn.offsetWidth;
+    const nh    = noBtn.offsetHeight;
+    // Position relative to card
+    const left = yesR.right - cardR.left + 12;
+    const top  = yesR.top  - cardR.top + (yesR.height - nh) / 2;
+    noBtn.style.left = left + 'px';
+    noBtn.style.top  = top  + 'px';
+  }
+
+  // Wait for fonts/layout to settle
+  requestAnimationFrame(() => requestAnimationFrame(placeInitial));
+  window.addEventListener('resize', placeInitial);
+
+  noBtn.addEventListener('mouseover', flee);
+  noBtn.addEventListener('click',     flee);
+  noBtn.addEventListener('touchstart', flee, { passive: true });
+
+  function overlaps(x, y, nw, nh) {
+    const cardR = card.getBoundingClientRect();
+    const yesR  = yesBtn.getBoundingClientRect();
+    // Convert yes rect to card-relative coords
+    const yl = yesR.left - cardR.left;
+    const yt = yesR.top  - cardR.top;
+    const pad = 10;
+    return !(x + nw < yl - pad || x > yl + yesR.width  + pad ||
+             y + nh < yt - pad || y > yt + yesR.height + pad);
+  }
+
+  function flee() {
+    const cw  = card.offsetWidth;
+    const ch  = card.offsetHeight;
+    const nw  = noBtn.offsetWidth  || 80;
+    const nh  = noBtn.offsetHeight || 40;
+    const pad = 10;
+    let x, y, tries = 0;
+    do {
+      x = pad + Math.random() * (cw - nw - pad * 2);
+      y = pad + Math.random() * (ch - nh - pad * 2);
+      tries++;
+    } while (overlaps(x, y, nw, nh) && tries < 30);
+    noBtn.style.left = x + 'px';
+    noBtn.style.top  = y + 'px';
+  }
+
+  // --- Yes button ---
+  yesBtn.addEventListener('click', () => {
+    noBtn.style.display = 'none';
+    msg.style.display = 'block';
+    msg.textContent = 'the moon looks better with you in the passenger seat, meet me soooon plisssss 🌙💨';
+    burst();
+  });
+
+  // --- Confetti burst ---
+  function burst() {
+    const colors = ['#7b9cff','#c4d4ff','#3d5bd9','#a0b4ff','#1a2a5e','#eef2ff'];
+    for (let i = 0; i < 60; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = (30 + Math.random() * 40) + 'vw';
+      c.style.top  = '40vh';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 80 + Math.random() * 220;
+      c.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      c.style.setProperty('--dy', Math.sin(angle) * dist - 120 + 'px');
+      c.style.animationDelay = (Math.random() * 0.3) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 1800);
+    }
+  }
+</script>
+</body>
+</html>
